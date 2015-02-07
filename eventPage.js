@@ -5,3 +5,8 @@ chrome.runtime.onStartup.addListener(function() {
   Parse.initialize("Qh5UNx6rO5d9RPKHkW7OAAgabKGlbcByuaWZXdFB", "NcwUMIqVFnmYHjzkrlRFIPWaKhytP0kIhwLKdpBa");
 });
 
+chrome.browserAction.onClicked.addListener(function() {
+  chrome.tabs.executeScript({
+    file: 'addpayload.js'
+  });
+});
