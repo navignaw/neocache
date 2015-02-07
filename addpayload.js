@@ -28,9 +28,9 @@ function getDomPath(el) {
     }
     if ( el.hasAttribute('id') && el.id != '' ) {
       nodeName += '#' + el.id;
-    } else if ( sibCount > 1 ) {
+    } /*else if ( sibCount > 1 ) {
       nodeName += ':eq(' + sibIndex + ')';
-    } 
+    } */
     stack.unshift(nodeName);
 
     el = el.parentNode;
