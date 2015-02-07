@@ -139,13 +139,21 @@
     if (!curUser) {
       console.log("Logging in.")
       chrome.storage.sync.get("userid", function(items) {
-        Parse.User.logIn(items.userid, "");
+        console.log(items);
+        if (items.userid) {
+          Parse.User.logIn(items.userid, "abc");
+        }
+        else {
+          chrome.runtime.sendMessage({type: "init"});
+        }
+        curUser = Parser.User.current();
       });
       curUser = Parse.User.current();
       console.log("Login successful.");
     }
     var Page = Parse.Object.extend("Page");
     var pageQuery = new Parse.Query(Page);
+    console.log(curUser);
     pageQuery.equalTo("url", url);
     pageQuery.find().then(function(results) {
       var page;
