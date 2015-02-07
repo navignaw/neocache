@@ -8,6 +8,24 @@
   var drop = null;
   var payloadEnabled = false;
 
+
+  // Get current user id; returns a promise
+  function getCurrentUser() {
+    var promise = new Parse.Promise();
+    chrome.storage.sync.get("userid", function(items) {
+      if (!items.userid) {
+        console.log("Error: userid not found");
+        promise.reject("Error: userid not found");
+      } else {
+        promise.resolve(items.userid);
+      }
+      /*var Person = Parse.Object.extend("Person");
+      var personQuery = new Parse.Query(Person);
+      personQuery.get(items.userid).then(promise.resolve);*/
+    });
+    return promise;
+  }
+
   // Save payload icon on screen and display content on hover
   function payloadHTML(payload) {
     var html = '';
@@ -46,17 +64,31 @@
   chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     if (request.type === 'newUrl' && request.url) {
       var newUrl = request.url.split("?")[0]; // remove url parameters
+      var userId;
       console.log('Searching for payloads on ' + newUrl);
 
-      var Page = Parse.Object.extend("Page");
-      var pageQuery = new Parse.Query(Page);
-      pageQuery.equalTo("url", newUrl);
-      pageQuery.find().then(function(results) {
+      // Get current user id
+      getCurrentUser().then(function(user) {
+        userId = user;
+
+        // Filter by current url
+        var Page = Parse.Object.extend("Page");
+        var pageQuery = new Parse.Query(Page);
+        pageQuery.equalTo("url", newUrl);
+        return pageQuery.find();
+      }).then(function(results) {
         if (results.length > 0) {
           var page = results[0];
+
+          // Filter by user's groups
+          var Group = Parse.Object.extend("Group");
+          var groupsQuery = new Parse.Query(Group);
+          groupsQuery.equalTo("users", userId);
+
           var Payload = Parse.Object.extend("Payload");
           var payloadQuery = new Parse.Query(Payload);
           payloadQuery.equalTo("page", page);
+          payloadQuery.matchesQuery("group", groupsQuery);
           return payloadQuery.find();
         }
         return Parse.Promise.as([]);
@@ -176,49 +208,52 @@
       console.log("Login successful.");
     } */
 
-    chrome.storage.sync.get("userid", function(items) {
-      if (!items.userid) {
-        console.log("Error: userid not found");
-      }
-      
-      var imageFile;
-      var page;
-      if (image) {
-        imageFile = new Parse.File('image.jpg', image);
-      }
+    var imageFile;
+    var page;
+    var userId;
+
+    if (image) {
+      imageFile = new Parse.File('image.jpg', image);
+    }
+
+    // Get current user id
+    getCurrentUser().then(function(user) {
+      userId = user;
+
       var Page = Parse.Object.extend("Page");
       var pageQuery = new Parse.Query(Page);
-      console.log(items.userid);
       pageQuery.equalTo("url", url);
-      pageQuery.find().then(function(results) {
-        if (results.length > 0) {
-          page = results[0];
-          return Parse.Promise.as(null);
-        } else {
-          page = new Page();
-          page.set("url", url);
-          return page.save();
-        }
-      }).then(function() {
-        if (imageFile) {
-          return imageFile.save();
-        } else {
-          return Parse.Promise.as(null);
-        }
-      }).then(function() {
-        var Payload = Parse.Object.extend("Payload");
-        var payload = new Payload();
-        payload.set("page", page);
-        payload.set("domPath", domPath);
-        payload.set("content", content);
-        payload.set("user", items.userid);
-        if (image) {
-          payload.set("image", imageFile);
-        }
-        payload.save();
+      return pageQuery.find();
+    }).then(function(results) {
+      // Get page based on current url
+      if (results.length > 0) {
+        page = results[0];
+        return Parse.Promise.as(null);
+      } else {
+        page = new Page();
+        page.set("url", url);
+        return page.save();
+      }
+    }).then(function() {
+      if (image) {
+        return imageFile.save();
+      } else {
+        return Parse.Promise.as(null);
+      }
+    }).then(function() {
+      // TODO: save current user's group to payload
+      var Payload = Parse.Object.extend("Payload");
+      var payload = new Payload();
+      payload.set("page", page);
+      payload.set("domPath", domPath);
+      payload.set("content", content);
+      payload.set("creator", userId);
+      if (image) {
+        payload.set("image", imageFile);
+      }
+      payload.save();
 
-        attachPayload(payload);
-      });
+      attachPayload(payload);
     });
   }
 });
