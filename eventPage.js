@@ -13,6 +13,10 @@ chrome.browserAction.onClicked.addListener(function(tab) {
     });
 });
 
+chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
+  console.log(message.domPath);
+});
+
 /* chrome.browserAction.onClicked.addListener(function(tab) {
       chrome.tabs.executeScript({
         file: 'addpayload.js'
