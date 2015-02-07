@@ -32,6 +32,22 @@
   function displayGroups(curUser) {
     var Group = Parse.Object.extend("Group");
     var groupQuery = new Parse.Query(Group);
+
+    var joinOrLeaveGroup = function() {
+      var $this = $(this);
+      groupQuery = new Parse.Query(Group);
+      groupQuery.get($this.attr('id')).then(function(group) {
+        if ($this.text() === 'Join') {
+          group.add("users", curUser.toString());
+          $this.text('Leave');
+        } else {
+          group.remove("users", curUser.toString());
+          $this.text('Join');
+        }
+        group.save();
+      });
+    };
+
     groupQuery.find().then(function(results) {
       var list = $("#groups");
       for (var i = 0; i < results.length; i++) {
@@ -44,21 +60,24 @@
         }
         list.append('<li>' + result.get("name") + ' (' + joinOrLeave + ')</li>');
       }
-      list.find('li > a.join-leave').click(function() {
-        var $this = $(this);
-        groupQuery = new Parse.Query(Group);
-        groupQuery.get($this.attr('id')).then(function(group) {
-          if ($this.text() === 'Join') {
-            group.add("users", curUser.toString());
-            $this.text('Leave');
-          } else {
-            group.remove("users", curUser.toString());
-            $this.text('Join');
-          }
-          group.save();
+      list.find('li > a.join-leave').click(joinOrLeaveGroup);
+      list.append('<li id="new-group-list">' +
+                    '<input type="text" id="new-group-text" placeholder="New Group Name"/>' +
+                    '<button type="button" id="new-group">+ Add</button>' +
+                  '</li>');
+
+      $('#new-group').click(function() {
+        var group = new Group();
+        var groupName = $('#new-group-text').val();
+        group.set("name", groupName);
+        group.set("users", [curUser]);
+        group.save().then(function(newGroup) {
+          $('#new-group-text').val('');
+          var leave = '<a href="#" class="join-leave" id="' + newGroup.id + '">Leave</a>';
+          $('#new-group-list').before('<li>' + groupName + ' (' + leave + ')</li>');
+          $('#' + newGroup.id).click(joinOrLeaveGroup);
         });
       });
-      list.append('<li><button type="button">+ Add Group</button></li>');
     });
   }
 
