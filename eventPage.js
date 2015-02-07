@@ -8,28 +8,14 @@
 var addmode = false;
 
 chrome.browserAction.onClicked.addListener(function(tab) {
-    /*chrome.tabs.executeScript({
-      file: 'addpayload.js'
-    });*/
-    chrome.tabs.sendMessage(tab.id, {type: 'browserAction', url: tab.url});
+    chrome.tabs.sendMessage(tab.id, {type: 'browserAction', url: tab.url}, function(response) {
+      if (response.enabled) {
+        chrome.browserAction.setIcon({path: 'images/icon.png'});
+      } else {
+        chrome.browserAction.setIcon({path: 'images/icon-grey.png'});
+      }
+    });
 });
-
-/* chrome.browserAction.onClicked.addListener(function(tab) {
-      chrome.tabs.executeScript({
-        file: 'addpayload.js'
-      });
-      chrome.tabs.sendMessage(tabId, {addmode});
-});
-
-chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
-  switch (message) {
-    case "true":
-      addmode = true;
-      break;
-    case "false":
-      addmode = false;
-      break;
-}); */
 
 // Load all payloads on tab creation/update
 chrome.tabs.onCreated.addListener(function(tab) {
