@@ -193,7 +193,10 @@
         var fileControl = $(".drop-content input#payload-image")[0];
         var content = $('.drop-content input#payload-content').val();
         var groupId = $('.drop-content select#payload-group').val();
-        if (fileControl.files.length > 0) {
+        if (!groupId) {
+          alert("Please select a group to post under. (You may add groups in the Options page.)");
+        }
+        else if (fileControl.files.length > 0) {
           createPayload(url, domPath, fileControl.files[0], content, groupId);
           drop.remove();
           drop = null;
