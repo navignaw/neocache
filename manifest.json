@@ -5,6 +5,9 @@
   "description": "Caching of the future TM",
   "version": "1.0",
   "options_page": "options.html",
+  "icons": {
+    "128": "images/new_icon.png"
+  },
 
   "background": {
     "scripts": ["eventPage.js"],
@@ -26,8 +29,11 @@
   ],
 
   "browser_action": {
-    "default_icon": "images/icon-grey.png",
-    "default_title": "Toggle NeoCache"
+    "default_icon": {
+      "19": "images/icon-grey.png",
+      "38": "images/new_icon_38x38.png"
+    },
+    "default_title": "Toggle Neocache"
   },
 
   "permissions": [
@@ -39,6 +45,6 @@
   ],
 
   "web_accessible_resources": [
-    "images/payload-icon.gif"
+    "images/payload-icon.png"
   ]
 }

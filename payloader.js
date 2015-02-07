@@ -14,7 +14,7 @@
     if (payloadEl) {
       var icon = document.createElement("icon");
       var img = document.createElement("img");
-      var imgLoc = chrome.extension.getURL("images/payload-icon.gif");
+      var imgLoc = chrome.extension.getURL("images/payload-icon.png");
       img.setAttribute("src", imgLoc);
       icon.appendChild(img);
       var iconEl = payloadEl.appendChild(icon);
