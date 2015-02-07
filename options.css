@@ -14,7 +14,7 @@
 	border-width: 2px;
 }
 
-button {
+button.close {
 	background-color: rgba(255,255,255,0.0);
 	border-width: 0;
 }

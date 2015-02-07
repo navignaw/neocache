@@ -23,7 +23,7 @@
         var res = results[i];
         var url = res.get("page").get("url");
         var resStr = '<a href="' + url + '" id="' + res.id + '">' + url + '</a> : \t' + res.get("content");
-        var btnStr = '<button type="button" id = "' + res.id + '"> \u2716 </button>';
+        var btnStr = '<button type="button" class="close" id = "' + res.id + '"> \u2716 </button>';
         $("#" + res.id).on("click", { obj: res }, deletePayload);
         list.append('<li>' + btnStr + '\t \t' + resStr + '</li>');
       }
