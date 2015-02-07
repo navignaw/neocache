@@ -75,6 +75,8 @@ function initUser() {
       chrome.storage.sync.set({userid: userid}, function() {
           console.log("Initialized userid.");
       });
+    } else {
+      console.log("Userid already exists.");
     }
   });
 }
