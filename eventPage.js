@@ -26,6 +26,14 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
     chrome.tabs.sendMessage(tabId, {type: 'newUrl', url: tab.url});
   }
 });
+// update whenever opened tab is changed
+chrome.tabs.onActivated.addListener(function(activeInfo) {
+  var tabId = activeInfo.tabId;
+
+  chrome.tabs.get(tabId, function(tab) { 
+    chrome.tabs.sendMessage(tabId, {type: 'newUrl', url: tab.url});
+  });
+}); 
 
 // Initializes new user ID upon install or upon message
 /* chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
