@@ -45,7 +45,7 @@ chrome.runtime.onConnect.addListener(function(details) {
 
 function getRandomToken() {
     // E.g. 8 * 32 = 256 bits token
-    var randomPool = new Uint8Array(32);
+    var randomPool = new Uint8Array(8);
     crypto.getRandomValues(randomPool);
     var hex = '';
     for (var i = 0; i < randomPool.length; ++i) {

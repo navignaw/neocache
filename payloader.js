@@ -17,6 +17,7 @@
         console.log("Error: userid not found");
         promise.reject("Error: userid not found");
       } else {
+        console.log('User: ', items.userid);
         promise.resolve(items.userid);
       }
       /*var Person = Parse.Object.extend("Person");
