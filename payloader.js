@@ -4,11 +4,10 @@
 
   Parse.initialize("Qh5UNx6rO5d9RPKHkW7OAAgabKGlbcByuaWZXdFB", "NcwUMIqVFnmYHjzkrlRFIPWaKhytP0kIhwLKdpBa");
 
-  var payloads = [];
   var drop = null;
   var payloadEnabled = false;
   var groups = [];
-
+  var payloads = {};
 
   // Get current user id; returns a promise
   function getCurrentUser() {
@@ -51,7 +50,13 @@
   }
 
   function attachPayload(payload) {
-    var payloadEl = document.querySelector(payload.get('domPath'));
+    var domPath = payload.get('domPath');
+    if (payloads.hasOwnProperty(domPath)) {
+      return;
+    }
+
+    payloads[domPath] = true;
+    var payloadEl = document.querySelector(domPath);
     if (payloadEl) {
       var icon = document.createElement("icon");
       var img = document.createElement("img");
@@ -124,7 +129,7 @@
       name = name.toLowerCase();
 
       if (realNode.className) {
-        name += '.' + realNode.className.replace(/ /g, '.');
+        name += '.' + $.trim(realNode.className).replace(/\s+/g, '.');
       }
       if (realNode.hasAttribute('id') && realNode.id !== '') {
         name += '#' + realNode.id;

@@ -30,7 +30,7 @@
         var txt = document.createTextNode("\u2716");
         btn.appendChild(txt);
         buttons.appendChild(btn);
-        $("#" + btn.id).on("click", { obj: res }, deletePayload); 
+        $("#" + btn.id).on("click", { obj: res }, deletePayload);
       }
     });
   }
