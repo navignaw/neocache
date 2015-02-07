@@ -6,6 +6,16 @@
 
   var payloads;
 
+  function attachPayload(payload) {
+    var drop = new Drop({
+      target: document.querySelector(payload.get('domPath')),
+      content: payload.get('content'),
+      position: 'top left',
+      openOn: 'hover',
+      classes: 'drop-theme-arrows-bounce'
+    });
+  }
+
   // Load all payloads on message from event page
   chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     if (request.type === 'newUrl' && request.url) {
@@ -29,6 +39,10 @@
         payloads = results;
         console.log(payloads.length + " payloads found");
         console.log(payloads);
+
+        for (var i = 0; i < payloads.length; i++) {
+          attachPayload(payloads[i]);
+        }
       });
     }
   });
