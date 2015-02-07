@@ -30,10 +30,10 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 chrome.tabs.onActivated.addListener(function(activeInfo) {
   var tabId = activeInfo.tabId;
 
-  chrome.tabs.get(tabId, function(tab) { 
+  chrome.tabs.get(tabId, function(tab) {
     chrome.tabs.sendMessage(tabId, {type: 'newUrl', url: tab.url});
   });
-}); 
+});
 
 // Initializes new user ID upon install or upon message
 /* chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
@@ -66,17 +66,6 @@ function getRandomToken() {
 function initUser() {
   console.log("Attempting to init userid");
   userid = getRandomToken();
-  /* var user = new Parse.User();
-  user.set("username", userid);
-  user.set("password", "abc");
-  user.signUp(null, {
-    success: function(user) {
-      console.log("Initialized user.");
-    },
-    error: function(user, error) {
-      console.log("Error: " + error.code + " " + error.message);
-    }
-  }); */
 
   chrome.storage.sync.get("userid", function(items) {
     if (!items.userid) {

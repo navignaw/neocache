@@ -21,9 +21,6 @@
         console.log('User: ', items.userid);
         promise.resolve(items.userid);
       }
-      /*var Person = Parse.Object.extend("Person");
-      var personQuery = new Parse.Query(Person);
-      personQuery.get(items.userid).then(promise.resolve);*/
     });
     return promise;
   }
@@ -213,23 +210,6 @@
 
   // Saves payload to Parse and page if it does not exist
   function createPayload(url, domPath, image, content, groupId) {
-    /* var curUser = Parse.User.current();
-    if (!curUser) {
-      console.log("Logging in.")
-      chrome.storage.sync.get("userid", function(items) {
-        console.log(items);
-        if (items.userid) {
-          Parse.User.logIn(items.userid, "abc");
-        }
-        else {
-          chrome.runtime.sendMessage({type: "init"});
-        }
-        curUser = Parser.User.current();
-      });
-      curUser = Parse.User.current();
-      console.log("Login successful.");
-    } */
-
     var imageFile;
     var page;
     var userId;
