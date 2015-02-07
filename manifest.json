@@ -16,7 +16,7 @@
 
   "content_scripts": [
     {
-      "matches": ["http://*/*"],
+      "matches": ["http://*/*","https://*/*"],
       "css": ["lib/drop/drop-theme-arrows-bounce.css"],
       "js": [
         "lib/jquery/jquery-1.11.2.min.js",
