@@ -135,6 +135,15 @@
 
   // Saves payload to Parse and page if it does not exist
   function createPayload(url, domPath, content) {
+    var curUser = Parse.User.current();
+    if (!curUser) {
+      console.log("Logging in.")
+      chrome.storage.sync.get("userid", function(items) {
+        Parse.User.logIn(items.userid, "");
+      });
+      curUser = Parse.User.current();
+      console.log("Login successful.");
+    }
     var Page = Parse.Object.extend("Page");
     var pageQuery = new Parse.Query(Page);
     pageQuery.equalTo("url", url);
@@ -153,6 +162,7 @@
       payload.set("page", page);
       payload.set("domPath", domPath);
       payload.set("content", content);
+      payload.set("user", curUser);
       payload.save();
 
       attachPayload(payload);
