@@ -61,8 +61,7 @@
         }
         return Parse.Promise.as([]);
 
-      }).then(function(results) {
-        payloads = results;
+      }).then(function(payloads) {
         console.log(payloads.length + " payloads found");
 
         for (var i = 0; i < payloads.length; i++) {
@@ -115,7 +114,7 @@
     $(document).undelegate();
     $(document).delegate('*', 'click', function(e) {
       if (drop && !$(e.target).closest('.drop').length) {
-        drop.destroy();
+        drop.remove();
         drop = null;
       } else if (!drop && payloadEnabled) {
         var domPath = getDomPath($(this));
@@ -145,11 +144,11 @@
         var content = $('.drop-content input#payload-content').val();
         if (fileControl.files.length > 0) {
           createPayload(url, domPath, fileControl.files[0], content);
-          drop.destroy();
+          drop.remove();
           drop = null;
         } else if (content) {
           createPayload(url, domPath, null, content);
-          drop.destroy();
+          drop.remove();
           drop = null;
         } else {
           alert("Please enter content or upload an image.");
