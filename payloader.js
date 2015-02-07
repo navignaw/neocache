@@ -7,6 +7,7 @@
   var payloads = [];
   var drop = null;
   var payloadEnabled = false;
+  var groups = [];
 
 
   // Get current user id; returns a promise
@@ -26,6 +27,17 @@
     });
     return promise;
   }
+
+  // Compute and cache user's groups
+  getCurrentUser().then(function(userId) {
+    var Group = Parse.Object.extend("Group");
+    var groupsQuery = new Parse.Query(Group);
+    groupsQuery.equalTo("users", userId);
+
+    return groupsQuery.find();
+  }).then(function(results) {
+    groups = results;
+  });
 
   // Save payload icon on screen and display content on hover
   function payloadHTML(payload) {
@@ -161,11 +173,19 @@
   // Attach a popover element to the DOM
   function attachPopover(url, domPath) {
     console.log('creating new drop at: "' + domPath + '"');
+    var content = '<label for="payload-content">Content:</label> <input id="payload-content" type="text" />',
+        image   = '<label for="payload-image">Image:</label> <input type="file" accept="image/*" id="payload-image" />',
+        group   = '<label for="payload-group">Group:</label> <select id="payload-group">',
+        save    = '<button id="add-payload">Save</button>';
+
+    for (var i = 0; i < groups.length; i++) {
+      group += '<option value="' + groups[i].id + '">' + groups[i].get("name") + "</option>";
+    }
+    group += '</select>';
+
     drop = new Drop({
       target: document.querySelector(domPath),
-      content: '<label for="payload-content">Content:</label> <input id="payload-content" type="text" /><br/>' +
-               '<label for="payload-image">Image:</label> <input type="file" accept="image/*" id="payload-image" /><br/>' +
-               '<button id="add-payload">Save</button>',
+      content: [content, image, group, save].join('<br/>'),
       position: 'top left',
       openOn: 'always',
       classes: 'drop drop-theme-arrows-bounce'
@@ -175,12 +195,13 @@
       $('.drop-content #add-payload').on('click', function(e) {
         var fileControl = $(".drop-content input#payload-image")[0];
         var content = $('.drop-content input#payload-content').val();
+        var groupId = $('.drop-content select#payload-group').val();
         if (fileControl.files.length > 0) {
-          createPayload(url, domPath, fileControl.files[0], content);
+          createPayload(url, domPath, fileControl.files[0], content, groupId);
           drop.remove();
           drop = null;
         } else if (content) {
-          createPayload(url, domPath, null, content);
+          createPayload(url, domPath, null, content, groupId);
           drop.remove();
           drop = null;
         } else {
@@ -191,7 +212,7 @@
   }
 
   // Saves payload to Parse and page if it does not exist
-  function createPayload(url, domPath, image, content) {
+  function createPayload(url, domPath, image, content, groupId) {
     /* var curUser = Parse.User.current();
     if (!curUser) {
       console.log("Logging in.")
@@ -242,13 +263,17 @@
         return Parse.Promise.as(null);
       }
     }).then(function() {
-      // TODO: save current user's group to payload
+      var Group = Parse.Object.extend("Group");
+      var groupQuery = new Parse.Query(Group);
+      return groupQuery.get(groupId);
+    }).then(function(group) {
       var Payload = Parse.Object.extend("Payload");
       var payload = new Payload();
       payload.set("page", page);
       payload.set("domPath", domPath);
       payload.set("content", content);
-      payload.set("creator", userId);
+      payload.set("user", userId);
+      payload.set("group", group);
       if (image) {
         payload.set("image", imageFile);
       }
