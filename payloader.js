@@ -221,11 +221,12 @@
       imageFile = new Parse.File('image.jpg', image);
     }
 
+    var Page = Parse.Object.extend("Page");
+
     // Get current user id
     getCurrentUser().then(function(user) {
       userId = user;
 
-      var Page = Parse.Object.extend("Page");
       var pageQuery = new Parse.Query(Page);
       pageQuery.equalTo("url", url);
       return pageQuery.find();
