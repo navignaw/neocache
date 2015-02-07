@@ -21,9 +21,6 @@
         console.log('User: ', items.userid);
         promise.resolve(items.userid);
       }
-      /*var Person = Parse.Object.extend("Person");
-      var personQuery = new Parse.Query(Person);
-      personQuery.get(items.userid).then(promise.resolve);*/
     });
     return promise;
   }
@@ -196,7 +193,10 @@
         var fileControl = $(".drop-content input#payload-image")[0];
         var content = $('.drop-content input#payload-content').val();
         var groupId = $('.drop-content select#payload-group').val();
-        if (fileControl.files.length > 0) {
+        if (!groupId) {
+          alert("Please select a group to post under. (You may add groups in the Options page.)");
+        }
+        else if (fileControl.files.length > 0) {
           createPayload(url, domPath, fileControl.files[0], content, groupId);
           drop.remove();
           drop = null;
@@ -213,23 +213,6 @@
 
   // Saves payload to Parse and page if it does not exist
   function createPayload(url, domPath, image, content, groupId) {
-    /* var curUser = Parse.User.current();
-    if (!curUser) {
-      console.log("Logging in.")
-      chrome.storage.sync.get("userid", function(items) {
-        console.log(items);
-        if (items.userid) {
-          Parse.User.logIn(items.userid, "abc");
-        }
-        else {
-          chrome.runtime.sendMessage({type: "init"});
-        }
-        curUser = Parser.User.current();
-      });
-      curUser = Parse.User.current();
-      console.log("Login successful.");
-    } */
-
     var imageFile;
     var page;
     var userId;

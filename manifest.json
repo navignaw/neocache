@@ -2,8 +2,8 @@
   "manifest_version": 2,
 
   "name": "NeoCache",
-  "description": "Caching of the future TM",
-  "version": "1.0",
+  "description": "Annotate the Internet",
+  "version": "0.0.1",
   "options_page": "options.html",
   "icons": {
     "128": "images/new_icon.png"
@@ -36,14 +36,13 @@
       "19": "images/icon-grey.png",
       "38": "images/new_icon_38x38.png"
     },
-    "default_title": "Toggle Neocache"
+    "default_title": "Toggle NeoCache"
   },
 
   "permissions": [
     "activeTab",
     "tabs",
     "storage",
-    "https://ajax.googleapis.com/",
     "http://*/"
   ],
 

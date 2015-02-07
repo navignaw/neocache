@@ -9,55 +9,35 @@ html {
 
 body {
 	text-align: center;
-	background-image: url('images/new_icon.png');
-	background-repeat: no-repeat;
-	background-attachment: fixed;
-	background-position: left bottom;
-	padding-bottom: 1em;
-	padding-left: 2em;
 
-	margin: 2em;
 
-	background-color: #F2F2F2;
+	
 }
 
 h1 {
-	text-align: center;
-	margin-top: 2em;
-	font-family: Verdana, Geneva, sans-serif;
-	padding-bottom: 1em;
-	color: #6E0093;
-	/*border-bottom-style: solid;
-	border-color: #4D94FF;
-	border-width: 1px;*/
+	
 }
 
 table {
 	width: 80%;
 	float: left;
-	padding-left: 20em;
+	padding-left: 10em;
 }
 
 td {
-	margin: 2em;
-	background-color: rgba(255,255,255,0.4);
+
 }
 
 h2 {
-	color: #6E0093;
+
 }
 
 #left {
-	margin-top: 1em;
-	border-right-style: solid;
-	border-color: #4D94FF;
-	height: 100%;
-	border-width: 2px;
-	float:top;
+
 }
 
 .category {
-	font-family: "Lucida Console", Monaco, monospace;
+
 }
 
 .category h2 {
@@ -66,8 +46,7 @@ h2 {
 }
 
 .contents {
-	font-family: Verdana, Geneva, sans-serif;
-	text-align: left;
+
 }
 
 .content li {
