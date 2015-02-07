@@ -1,0 +1,12 @@
+.drop.drop-element {
+  max-width: 400px;
+  padding: 0;
+}
+
+.drop, .drop-content {
+  max-width: 400px;
+}
+
+.drop-content input {
+  max-width: 300px;
+}

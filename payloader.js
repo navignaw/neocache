@@ -8,7 +8,20 @@
   var drop = null;
   var payloadEnabled = false;
 
-  // Save payload icon on screen
+  // Save payload icon on screen and display content on hover
+  function payloadHTML(payload) {
+    var html = '';
+    var image = payload.get('image');
+    var content = payload.get('content');
+    if (image) {
+      html += '<img src=' + image.url() + '></img>';
+    }
+    if (content) {
+      html += '<div>' + content + '</div>';
+    }
+    return html;
+  }
+
   function attachPayload(payload) {
     var payloadEl = document.querySelector(payload.get('domPath'));
     if (payloadEl) {
@@ -21,7 +34,7 @@
 
       var drop = new Drop({
         target: iconEl,
-        content: payload.get('content'),
+        content: payloadHTML(payload),
         position: 'top left',
         openOn: 'hover',
         classes: 'drop-theme-arrows-bounce'
@@ -51,7 +64,6 @@
       }).then(function(results) {
         payloads = results;
         console.log(payloads.length + " payloads found");
-        console.log(payloads);
 
         for (var i = 0; i < payloads.length; i++) {
           attachPayload(payloads[i]);
@@ -62,34 +74,36 @@
 
   function getDomPath(el) {
     var stack = [];
-    while ( el.parentNode !== null ) {
-      /* console.log(el.nodeName);
-      var sibCount = 0;
-      var sibIndex = 0;
-      for ( var i = 0; i < el.parentNode.childNodes.length; i++ ) {
-        var sib = el.parentNode.childNodes[i];
-        if ( sib.nodeName == el.nodeName ) {
-          if ( sib === el ) {
-            sibIndex = sibCount;
-          }
-          sibCount++;
-        }
-      } */
-      var nodeName = el.nodeName.toLowerCase();
 
-      if (el.className) {
-        nodeName += '.' + el.className.replace(/ /g, '.');
+    var path, node = el;
+    while (node.length) {
+      var realNode = node[0],
+          name = realNode.localName;
+      if (!name) break;
+      name = name.toLowerCase();
+
+      if (realNode.className) {
+        name += '.' + realNode.className.replace(/ /g, '.');
       }
-      if (el.hasAttribute('id') && el.id !== '') {
-        nodeName += '#' + el.id;
-      } /*else if ( sibCount > 1 ) {
-        nodeName += ':eq(' + sibIndex + ')';
-      } */
-      stack.unshift(nodeName);
-      el = el.parentNode;
+      if (realNode.hasAttribute('id') && realNode.id !== '') {
+        name += '#' + realNode.id;
+      }
+
+      var parent = node.parent();
+      var sameTagSiblings = parent.children(name);
+      if (sameTagSiblings.length > 1) {
+        allSiblings = parent.children();
+        var index = allSiblings.index(realNode) + 1;
+        if (index > 1) {
+          name += ':nth-child(' + index + ')';
+        }
+      }
+
+      stack.unshift(name);
+      node = parent;
     }
 
-    return stack.slice(1).join(' '); // removes the html element
+    return stack.slice(1).join(' > '); // removes the html element
   }
 
   // Allow creating payloads on click (mode toggled by browser action)
@@ -104,7 +118,7 @@
         drop.destroy();
         drop = null;
       } else if (!drop && payloadEnabled) {
-        var domPath = getDomPath($(this)[0]);
+        var domPath = getDomPath($(this));
         attachPopover(request.url.split("?")[0], domPath);
       }
       return false;
@@ -114,10 +128,11 @@
 
   // Attach a popover element to the DOM
   function attachPopover(url, domPath) {
-    console.log('creating new drop at ' + domPath);
+    console.log('creating new drop at: "' + domPath + '"');
     drop = new Drop({
       target: document.querySelector(domPath),
-      content: 'Content: <input class="payload-content" type="text" />' +
+      content: '<label for="payload-content">Content:</label> <input id="payload-content" type="text" /><br/>' +
+               '<label for="payload-image">Image:</label> <input type="file" accept="image/*" id="payload-image" /><br/>' +
                '<button id="add-payload">Save</button>',
       position: 'top left',
       openOn: 'always',
@@ -126,16 +141,26 @@
 
     drop.on('open', function() {
       $('.drop-content #add-payload').on('click', function(e) {
-        createPayload(url, domPath, $('.drop-content input.payload-content').val());
-        drop.destroy();
-        drop = null;
+        var fileControl = $(".drop-content input#payload-image")[0];
+        var content = $('.drop-content input#payload-content').val();
+        if (fileControl.files.length > 0) {
+          createPayload(url, domPath, fileControl.files[0], content);
+          drop.destroy();
+          drop = null;
+        } else if (content) {
+          createPayload(url, domPath, null, content);
+          drop.destroy();
+          drop = null;
+        } else {
+          alert("Please enter content or upload an image.");
+        }
       });
     });
   }
 
   // Saves payload to Parse and page if it does not exist
-  function createPayload(url, domPath, content) {
-    var curUser = Parse.User.current();
+  function createPayload(url, domPath, image, content) {
+    /* var curUser = Parse.User.current();
     if (!curUser) {
       console.log("Logging in.")
       chrome.storage.sync.get("userid", function(items) {
@@ -150,30 +175,51 @@
       });
       curUser = Parse.User.current();
       console.log("Login successful.");
-    }
-    var Page = Parse.Object.extend("Page");
-    var pageQuery = new Parse.Query(Page);
-    console.log(curUser);
-    pageQuery.equalTo("url", url);
-    pageQuery.find().then(function(results) {
-      var page;
-      if (results.length > 0) {
-          page = results[0];
-      } else {
-        page = new Page();
-        page.set("url", url);
-        page.save();
+    } */
+
+    chrome.storage.sync.get("userid", function(items) {
+      if (!items.userid) {
+        console.log("Error: userid not found");
       }
+      
+      var imageFile;
+      var page;
+      if (image) {
+        imageFile = new Parse.File('image.jpg', image);
+      }
+      var Page = Parse.Object.extend("Page");
+      var pageQuery = new Parse.Query(Page);
+      console.log(items.userid);
+      pageQuery.equalTo("url", url);
+      pageQuery.find().then(function(results) {
+        if (results.length > 0) {
+          page = results[0];
+          return Parse.Promise.as(null);
+        } else {
+          page = new Page();
+          page.set("url", url);
+          return page.save();
+        }
+      }).then(function() {
+        if (imageFile) {
+          return imageFile.save();
+        } else {
+          return Parse.Promise.as(null);
+        }
+      }).then(function() {
+        var Payload = Parse.Object.extend("Payload");
+        var payload = new Payload();
+        payload.set("page", page);
+        payload.set("domPath", domPath);
+        payload.set("content", content);
+        payload.set("user", items.userid);
+        if (image) {
+          payload.set("image", imageFile);
+        }
+        payload.save();
 
-      var Payload = Parse.Object.extend("Payload");
-      var payload = new Payload();
-      payload.set("page", page);
-      payload.set("domPath", domPath);
-      payload.set("content", content);
-      payload.set("user", curUser);
-      payload.save();
-
-      attachPayload(payload);
+        attachPayload(payload);
+      });
     });
   }
 });
