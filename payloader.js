@@ -6,9 +6,9 @@
 
   var payloads;
 
-  // Load all payloads on tab update
+  // Load all payloads on message from event page
   chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-    if (request.url) {
+    if (request.type === 'newUrl' && request.url) {
       var newUrl = request.url.split("?")[0]; // remove url parameters
       console.log('Searching for payloads on ' + newUrl);
 
@@ -32,4 +32,28 @@
       });
     }
   });
+
+  // Saves payload to Parse and page if it does not exist
+  function createPayload(url, domPath, content) {
+    var Page = Parse.Object.extend("Page");
+    var pageQuery = new Parse.Query(Page);
+    pageQuery.equalTo("url", url);
+    pageQuery.find().then(function(results) {
+      var page;
+      if (results.length > 0) {
+        page = results[0];
+      } else {
+        page = new Page();
+        page.set("url", url);
+        page.save();
+      }
+
+      var Payload = Parse.Object.extend("Payload");
+      var payload = new Payload();
+      payload.set("page", page);
+      payload.set("doomPath", domPath);
+      payload.set("content", content);
+      payload.save();
+    });
+  }
 })();
