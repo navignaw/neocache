@@ -26,7 +26,7 @@
   ],
 
   "browser_action": {
-    "default_icon": "icon.png"
+    "default_icon": "images/icon.png"
   },
 
   "permissions": [
@@ -34,5 +34,9 @@
     "tabs",
     "https://ajax.googleapis.com/",
     "http://*/"
+  ],
+  
+  "web_accessible_resources": [
+    "images/payload-icon.gif"
   ]
 }

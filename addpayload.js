@@ -32,7 +32,6 @@ function getDomPath(el) {
       nodeName += ':eq(' + sibIndex + ')';
     } */
     stack.unshift(nodeName);
-
     el = el.parentNode;
   }
 
