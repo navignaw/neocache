@@ -7,8 +7,16 @@
   var payloads;
 
   function attachPayload(payload) {
+    var payloadEl = document.querySelector(payload.get('domPath'));
+    var icon = document.createElement("icon");
+    var img = document.createElement("img");
+    var imgLoc = chrome.extension.getURL("images/payload-icon.gif");
+    img.setAttribute("src", imgLoc);
+    icon.appendChild(img);
+    var iconEl = payloadEl.appendChild(icon);
+
     var drop = new Drop({
-      target: document.querySelector(payload.get('domPath')),
+      target: iconEl,
       content: payload.get('content'),
       position: 'top left',
       openOn: 'hover',

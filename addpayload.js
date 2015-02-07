@@ -91,7 +91,6 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         nodeName += ':eq(' + sibIndex + ')';
       } */
       stack.unshift(nodeName);
-
       el = el.parentNode;
     }
 
