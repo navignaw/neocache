@@ -1,55 +1,20 @@
-* {
-	
-	text-align: center;
+.zero {
+	margin-left: 15%;
+	width: 70%;
 }
 
-html {
-	text-align:center;
+.half {
+	margin-bottom: 2em;
+	margin-top: 2em;
+	text-decoration: bold;
 }
 
-body {
-	text-align: center;
-
-
-	
+.two {
+	border-top-style: solid;
+	border-width: 2px;
 }
 
-h1 {
-	
-}
-
-table {
-	width: 80%;
-	float: left;
-	padding-left: 10em;
-}
-
-td {
-
-}
-
-h2 {
-
-}
-
-#left {
-
-}
-
-.category {
-
-}
-
-.category h2 {
-    padding: 1em;
-    margin: 1em;
-}
-
-.contents {
-
-}
-
-.content li {
+li {
 	list-style-type: none;
 	text-align: left;
 }
