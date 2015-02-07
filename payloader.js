@@ -159,42 +159,66 @@
 
   // Saves payload to Parse and page if it does not exist
   function createPayload(url, domPath, image, content) {
-    var imageFile;
-    var page;
-    if (image) {
-      imageFile = new Parse.File('image.jpg', image);
-    }
+    /* var curUser = Parse.User.current();
+    if (!curUser) {
+      console.log("Logging in.")
+      chrome.storage.sync.get("userid", function(items) {
+        console.log(items);
+        if (items.userid) {
+          Parse.User.logIn(items.userid, "abc");
+        }
+        else {
+          chrome.runtime.sendMessage({type: "init"});
+        }
+        curUser = Parser.User.current();
+      });
+      curUser = Parse.User.current();
+      console.log("Login successful.");
+    } */
 
-    var Page = Parse.Object.extend("Page");
-    var pageQuery = new Parse.Query(Page);
-    pageQuery.equalTo("url", url);
-    pageQuery.find().then(function(results) {
-      if (results.length > 0) {
-        page = results[0];
-        return Parse.Promise.as(null);
-      } else {
-        page = new Page();
-        page.set("url", url);
-        return page.save();
+    chrome.storage.sync.get("userid", function(items) {
+      if (!items.userid) {
+        console.log("Error: userid not found");
       }
-    }).then(function() {
-      if (imageFile) {
-        return imageFile.save();
-      } else {
-        return Parse.Promise.as(null);
-      }
-    }).then(function() {
-      var Payload = Parse.Object.extend("Payload");
-      var payload = new Payload();
-      payload.set("page", page);
-      payload.set("domPath", domPath);
-      payload.set("content", content);
+      
+      var imageFile;
+      var page;
       if (image) {
-        payload.set("image", imageFile);
+        imageFile = new Parse.File('image.jpg', image);
       }
-      payload.save();
+      var Page = Parse.Object.extend("Page");
+      var pageQuery = new Parse.Query(Page);
+      console.log(items.userid);
+      pageQuery.equalTo("url", url);
+      pageQuery.find().then(function(results) {
+        if (results.length > 0) {
+          page = results[0];
+          return Parse.Promise.as(null);
+        } else {
+          page = new Page();
+          page.set("url", url);
+          return page.save();
+        }
+      }).then(function() {
+        if (imageFile) {
+          return imageFile.save();
+        } else {
+          return Parse.Promise.as(null);
+        }
+      }).then(function() {
+        var Payload = Parse.Object.extend("Payload");
+        var payload = new Payload();
+        payload.set("page", page);
+        payload.set("domPath", domPath);
+        payload.set("content", content);
+        payload.set("user", items.userid);
+        if (image) {
+          payload.set("image", imageFile);
+        }
+        payload.save();
 
-      attachPayload(payload);
+        attachPayload(payload);
+      });
     });
   }
 });
