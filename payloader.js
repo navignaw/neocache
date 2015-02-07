@@ -6,24 +6,27 @@
 
   var payloads = [];
   var drop = null;
+  var payloadEnabled = false;
 
   // Save payload icon on screen
   function attachPayload(payload) {
     var payloadEl = document.querySelector(payload.get('domPath'));
-    var icon = document.createElement("icon");
-    var img = document.createElement("img");
-    var imgLoc = chrome.extension.getURL("images/payload-icon.gif");
-    img.setAttribute("src", imgLoc);
-    icon.appendChild(img);
-    var iconEl = payloadEl.appendChild(icon);
+    if (payloadEl) {
+      var icon = document.createElement("icon");
+      var img = document.createElement("img");
+      var imgLoc = chrome.extension.getURL("images/payload-icon.gif");
+      img.setAttribute("src", imgLoc);
+      icon.appendChild(img);
+      var iconEl = payloadEl.appendChild(icon);
 
-    var drop = new Drop({
-      target: iconEl,
-      content: payload.get('content'),
-      position: 'top left',
-      openOn: 'hover',
-      classes: 'drop-theme-arrows-bounce'
-    });
+      var drop = new Drop({
+        target: iconEl,
+        content: payload.get('content'),
+        position: 'top left',
+        openOn: 'hover',
+        classes: 'drop-theme-arrows-bounce'
+      });
+    }
   }
 
   // Load all payloads on message from event page
@@ -57,18 +60,53 @@
     }
   });
 
-  // Allow creating payloads on browser action
+  function getDomPath(el) {
+    var stack = [];
+    while ( el.parentNode !== null ) {
+      /* console.log(el.nodeName);
+      var sibCount = 0;
+      var sibIndex = 0;
+      for ( var i = 0; i < el.parentNode.childNodes.length; i++ ) {
+        var sib = el.parentNode.childNodes[i];
+        if ( sib.nodeName == el.nodeName ) {
+          if ( sib === el ) {
+            sibIndex = sibCount;
+          }
+          sibCount++;
+        }
+      } */
+      var nodeName = el.nodeName.toLowerCase();
+
+      if (el.className) {
+        nodeName += '.' + el.className.replace(/ /g, '.');
+      }
+      if (el.hasAttribute('id') && el.id !== '') {
+        nodeName += '#' + el.id;
+      } /*else if ( sibCount > 1 ) {
+        nodeName += ':eq(' + sibIndex + ')';
+      } */
+      stack.unshift(nodeName);
+      el = el.parentNode;
+    }
+
+    return stack.slice(1).join(' '); // removes the html element
+  }
+
+  // Allow creating payloads on click (mode toggled by browser action)
   chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
   if (request.type === 'browserAction' && request.url) {
-    $(document).delegate('*', 'click', function() {
-      if (drop) {
+    payloadEnabled = !payloadEnabled;
+    sendResponse({enabled: payloadEnabled});
+
+    $(document).undelegate();
+    $(document).delegate('*', 'click', function(e) {
+      if (drop && !$(e.target).closest('.drop').length) {
         drop.destroy();
         drop = null;
-      } else {
+      } else if (!drop && payloadEnabled) {
         var domPath = getDomPath($(this)[0]);
         attachPopover(request.url.split("?")[0], domPath);
       }
-      $(document).undelegate();
       return false;
     });
   }
@@ -120,53 +158,6 @@
       attachPayload(payload);
     });
   }
-
-  function getDomPath(el) {
-    var stack = [];
-    while ( el.parentNode !== null ) {
-      /* console.log(el.nodeName);
-      var sibCount = 0;
-      var sibIndex = 0;
-      for ( var i = 0; i < el.parentNode.childNodes.length; i++ ) {
-        var sib = el.parentNode.childNodes[i];
-        if ( sib.nodeName == el.nodeName ) {
-          if ( sib === el ) {
-            sibIndex = sibCount;
-          }
-          sibCount++;
-        }
-      } */
-      var nodeName = el.nodeName.toLowerCase();
-
-      if (el.className) {
-        nodeName += '.' + el.className.replace(/ /g, '.');
-      }
-      if (el.hasAttribute('id') && el.id !== '') {
-        nodeName += '#' + el.id;
-      } /*else if ( sibCount > 1 ) {
-        nodeName += ':eq(' + sibIndex + ')';
-      } */
-      stack.unshift(nodeName);
-      el = el.parentNode;
-    }
-
-    return stack.slice(1).join(' '); // removes the html element
-  }
-
-  /* console.log("loaded");
-
-  chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
-    console.log(message);
-    if (message == "false") {
-      chrome.runtime.sendMessage(chrome.runtime.id, "true");
-      $('body').click(function(e) {
-        var clickelem = $(e.target);
-        console.log(clickelem);
-        chrome.runtime.sendMessage(chrome.runtime.id, "false");
-      });
-    }
-
-  }); */
 });
 
 })();

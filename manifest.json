@@ -26,7 +26,8 @@
   ],
 
   "browser_action": {
-    "default_icon": "images/icon.png"
+    "default_icon": "images/icon-grey.png",
+    "default_title": "Toggle NeoCache"
   },
 
   "permissions": [
@@ -35,7 +36,7 @@
     "https://ajax.googleapis.com/",
     "http://*/"
   ],
-  
+
   "web_accessible_resources": [
     "images/payload-icon.gif"
   ]
