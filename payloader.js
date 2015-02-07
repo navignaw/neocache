@@ -47,27 +47,4 @@
     }
   });
 
-  // Saves payload to Parse and page if it does not exist
-  function createPayload(url, domPath, content) {
-    var Page = Parse.Object.extend("Page");
-    var pageQuery = new Parse.Query(Page);
-    pageQuery.equalTo("url", url);
-    pageQuery.find().then(function(results) {
-      var page;
-      if (results.length > 0) {
-        page = results[0];
-      } else {
-        page = new Page();
-        page.set("url", url);
-        page.save();
-      }
-
-      var Payload = Parse.Object.extend("Payload");
-      var payload = new Payload();
-      payload.set("page", page);
-      payload.set("doomPath", domPath);
-      payload.set("content", content);
-      payload.save();
-    });
-  }
 })();
