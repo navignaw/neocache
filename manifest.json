@@ -17,7 +17,10 @@
   "content_scripts": [
     {
       "matches": ["http://*/*","https://*/*"],
-      "css": ["lib/drop/drop-theme-arrows-bounce.css"],
+      "css": [
+        "lib/drop/drop-theme-arrows-bounce.css",
+        "payloader.css"
+      ],
       "js": [
         "lib/jquery/jquery-1.11.2.min.js",
         "lib/parse/parse-1.3.4.min.js",

@@ -74,34 +74,36 @@
 
   function getDomPath(el) {
     var stack = [];
-    while ( el.parentNode !== null ) {
-      /* console.log(el.nodeName);
-      var sibCount = 0;
-      var sibIndex = 0;
-      for ( var i = 0; i < el.parentNode.childNodes.length; i++ ) {
-        var sib = el.parentNode.childNodes[i];
-        if ( sib.nodeName == el.nodeName ) {
-          if ( sib === el ) {
-            sibIndex = sibCount;
-          }
-          sibCount++;
-        }
-      } */
-      var nodeName = el.nodeName.toLowerCase();
 
-      if (el.className) {
-        nodeName += '.' + el.className.replace(/ /g, '.');
+    var path, node = el;
+    while (node.length) {
+      var realNode = node[0],
+          name = realNode.localName;
+      if (!name) break;
+      name = name.toLowerCase();
+
+      if (realNode.className) {
+        name += '.' + realNode.className.replace(/ /g, '.');
       }
-      if (el.hasAttribute('id') && el.id !== '') {
-        nodeName += '#' + el.id;
-      } /*else if ( sibCount > 1 ) {
-        nodeName += ':eq(' + sibIndex + ')';
-      } */
-      stack.unshift(nodeName);
-      el = el.parentNode;
+      if (realNode.hasAttribute('id') && realNode.id !== '') {
+        name += '#' + realNode.id;
+      }
+
+      var parent = node.parent();
+      var sameTagSiblings = parent.children(name);
+      if (sameTagSiblings.length > 1) {
+        allSiblings = parent.children();
+        var index = allSiblings.index(realNode) + 1;
+        if (index > 1) {
+          name += ':nth-child(' + index + ')';
+        }
+      }
+
+      stack.unshift(name);
+      node = parent;
     }
 
-    return stack.slice(1).join(' '); // removes the html element
+    return stack.slice(1).join(' > '); // removes the html element
   }
 
   // Allow creating payloads on click (mode toggled by browser action)
@@ -116,7 +118,7 @@
         drop.destroy();
         drop = null;
       } else if (!drop && payloadEnabled) {
-        var domPath = getDomPath($(this)[0]);
+        var domPath = getDomPath($(this));
         attachPopover(request.url.split("?")[0], domPath);
       }
       return false;
@@ -126,11 +128,11 @@
 
   // Attach a popover element to the DOM
   function attachPopover(url, domPath) {
-    console.log('creating new drop at ' + domPath);
+    console.log('creating new drop at: "' + domPath + '"');
     drop = new Drop({
       target: document.querySelector(domPath),
-      content: 'Content: <input id="payload-content" type="text" /><br/>' +
-               'Image: <input type="file" accept="image/*" id="payload-image" /><br/>' +
+      content: '<label for="payload-content">Content:</label> <input id="payload-content" type="text" /><br/>' +
+               '<label for="payload-image">Image:</label> <input type="file" accept="image/*" id="payload-image" /><br/>' +
                '<button id="add-payload">Save</button>',
       position: 'top left',
       openOn: 'always',
