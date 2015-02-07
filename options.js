@@ -22,15 +22,11 @@
       for (var i = 0; i < results.length; i++) {
         var res = results[i];
         var url = res.get("page").get("url");
-        // var resStr = "<a href=\"" + url "\" id=\"" + res.id + "\">" + url + " </a> : \t" + res.get("content");
-        list.append('<li><a href="' + url + '" id="' + res.id + '">' + url + '</a> : \t' + res.get("content") + '</li>');
+        var resStr = '<a href="' + url + '" id="' + res.id + '">' + url + '</a> : \t' + res.get("content");
 
-        var btn = document.createElement("BUTTON");
-        btn.id = res.id;
-        var txt = document.createTextNode("\u2716");
-        btn.appendChild(txt);
-        buttons.appendChild(btn);
-        $("#" + btn.id).on("click", { obj: res }, deletePayload); 
+        var btnStr = '<button type = "button" id = "' + res.id + '"> \u2716 </button>';
+        $("#" + res.id).on("click", { obj: res }, deletePayload); 
+        list.append('<li>' + btnStr + '\t \t' + resStr + '</li>');
       }
     });
   }
