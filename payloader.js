@@ -8,7 +8,20 @@
   var drop = null;
   var payloadEnabled = false;
 
-  // Save payload icon on screen
+  // Save payload icon on screen and display content on hover
+  function payloadHTML(payload) {
+    var html = '';
+    var image = payload.get('image');
+    var content = payload.get('content');
+    if (image) {
+      html += '<img src=' + image.url() + '></img>';
+    }
+    if (content) {
+      html += '<div>' + content + '</div>';
+    }
+    return html;
+  }
+
   function attachPayload(payload) {
     var payloadEl = document.querySelector(payload.get('domPath'));
     if (payloadEl) {
@@ -21,7 +34,7 @@
 
       var drop = new Drop({
         target: iconEl,
-        content: payload.get('content'),
+        content: payloadHTML(payload),
         position: 'top left',
         openOn: 'hover',
         classes: 'drop-theme-arrows-bounce'
@@ -51,7 +64,6 @@
       }).then(function(results) {
         payloads = results;
         console.log(payloads.length + " payloads found");
-        console.log(payloads);
 
         for (var i = 0; i < payloads.length; i++) {
           attachPayload(payloads[i]);
@@ -117,7 +129,8 @@
     console.log('creating new drop at ' + domPath);
     drop = new Drop({
       target: document.querySelector(domPath),
-      content: 'Content: <input class="payload-content" type="text" />' +
+      content: 'Content: <input id="payload-content" type="text" /><br/>' +
+               'Image: <input type="file" accept="image/*" id="payload-image" /><br/>' +
                '<button id="add-payload">Save</button>',
       position: 'top left',
       openOn: 'always',
@@ -126,33 +139,58 @@
 
     drop.on('open', function() {
       $('.drop-content #add-payload').on('click', function(e) {
-        createPayload(url, domPath, $('.drop-content input.payload-content').val());
-        drop.destroy();
-        drop = null;
+        var fileControl = $(".drop-content input#payload-image")[0];
+        var content = $('.drop-content input#payload-content').val();
+        if (fileControl.files.length > 0) {
+          createPayload(url, domPath, fileControl.files[0], content);
+          drop.destroy();
+          drop = null;
+        } else if (content) {
+          createPayload(url, domPath, null, content);
+          drop.destroy();
+          drop = null;
+        } else {
+          alert("Please enter content or upload an image.");
+        }
       });
     });
   }
 
   // Saves payload to Parse and page if it does not exist
-  function createPayload(url, domPath, content) {
+  function createPayload(url, domPath, image, content) {
+    var imageFile;
+    var page;
+    if (image) {
+      imageFile = new Parse.File('image.jpg', image);
+    }
+
     var Page = Parse.Object.extend("Page");
     var pageQuery = new Parse.Query(Page);
     pageQuery.equalTo("url", url);
     pageQuery.find().then(function(results) {
-      var page;
       if (results.length > 0) {
-          page = results[0];
+        page = results[0];
+        return Parse.Promise.as(null);
       } else {
         page = new Page();
         page.set("url", url);
-        page.save();
+        return page.save();
       }
-
+    }).then(function() {
+      if (imageFile) {
+        return imageFile.save();
+      } else {
+        return Parse.Promise.as(null);
+      }
+    }).then(function() {
       var Payload = Parse.Object.extend("Payload");
       var payload = new Payload();
       payload.set("page", page);
       payload.set("domPath", domPath);
       payload.set("content", content);
+      if (image) {
+        payload.set("image", imageFile);
+      }
       payload.save();
 
       attachPayload(payload);
