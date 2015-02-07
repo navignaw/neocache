@@ -16,44 +16,29 @@
     payloadQuery.include("page");
     payloadQuery.find().then(function(results) {
       var list = document.getElementById("payloads");
+      var buttons = document.getElementById("buttons");
       for (var i = 0; i < results.length; i++) {
         var res = results[i];
         var li = document.createElement("li");
         var resStr = res.get("page").get("url") + " : \t" + res.get("content");
         console.log(resStr);
         li.innerHTML = resStr;
-        list.insertBefore(li, list.firstChild);
+        list.appendChild(li);
+
+        var btn = document.createElement("BUTTON");
+        btn.id = res.id;
+        var txt = document.createTextNode("\u2716");
+        btn.appendChild(txt);
+        buttons.appendChild(btn);
+        $("#" + btn.id).on("click", { obj: res }, deletePayload); 
       }
     });
   }
 
-  /*
-      var promise = Parse.Promise.as();
-      var payload = [];
-      for (var i = 0; i < results.length; i++) {
-        
-      //_.each(results, function(result) {
-        promise = promise.then(function(payloads) {
-          // var pageQuery = Parse.Object.extend("Page");
-          // pageQuery.equalTo(result.get("page").id)
-          payloads.push(
-          return results[i].get("page").get("url");
-        });
-      }
-      return promise;
-      /* var list = document.getElementById("payloads");
-      for (var i = 0; i < results.length; i++) {
-        var res = results[i];
-        var li = document.createElement("li");
-        var resStr = res.get("page").get("url") + ":" + res.get("content");
-        console.log(res);
-        console.log(resStr);
-        li.innerHTML = resStr;
-      } */
-  /*  }).then(function(promise) {
-      var li = document.createElement("li");
-      console.log(promise);
-      li.innerHTML =  promise + ":" + results[i].get("content"));
-    });
-  }*/
+  function deletePayload(event) {
+    var obj = event.data.obj;
+    console.log("Deleting " + obj.get("content"));
+    obj.destroy();
+  }
+
 })();
