@@ -22,10 +22,10 @@
       for (var i = 0; i < results.length; i++) {
         var res = results[i];
         var url = res.get("page").get("url");
-        var resStr = '<a href="' + url + '" id="' + res.id + '">' + url + '</a> : \t' + res.get("content");
-        var btnStr = '<button type="button" class="closebutton" id = "' + res.id + '"> \u2716 </button>';
-        $("#" + res.id).on("click", { obj: res }, deletePayload);
+        var resStr = '<a href="' + url + '" id="res-' + res.id + '">' + url + '</a> : \t' + res.get("content");
+        var btnStr = '<button type="button" class="closebutton" id="close-' + res.id + '"> \u2716 </button>';
         list.append('<li>' + btnStr + '\t \t' + resStr + '</li>');
+        $("#close-" + res.id).on("click", { obj: res, elem: list.children().last() }, deletePayload);
       }
     });
   }
@@ -33,6 +33,7 @@
   function deletePayload(event) {
     var obj = event.data.obj;
     console.log("Deleting " + obj.get("content"));
+    event.data.elem.remove();
     obj.destroy();
   }
 
