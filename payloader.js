@@ -9,6 +9,18 @@
   var groups = [];
   var payloads = {};
 
+  function escapeHTML(input) {
+    var MAP = { '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'};
+
+    return input.replace(/[&<>'"]/g, function(c) {
+      return MAP[c];
+    });
+  }
+
   // Get current user id; returns a promise
   function getCurrentUser() {
     var promise = new Parse.Promise();
@@ -174,6 +186,7 @@
 
   // Attach a popover element to the DOM
   function attachPopover(url, domPath) {
+    // TODO: fileControl does not work :(
     console.log('creating new drop at: "' + domPath + '"');
     var content = '<label for="payload-content">Content:</label> <input id="payload-content" type="text" />',
         image   = '<label for="payload-image">Image:</label> <input type="file" accept="image/*" id="payload-image" />',
@@ -196,17 +209,13 @@
     drop.on('open', function() {
       $('.drop-content #add-payload').on('click', function(e) {
         var fileControl = $(".drop-content input#payload-image")[0];
-        var content = $('.drop-content input#payload-content').val();
+        var content = escapeHTML($('.drop-content input#payload-content').val() || '');
         var groupId = $('.drop-content select#payload-group').val();
         if (!groupId) {
           alert("Please select a group to post under. (You may add groups in the Options page.)");
-        }
-        else if (fileControl.files.length > 0) {
-          createPayload(url, domPath, fileControl.files[0], content, groupId);
-          drop.remove();
-          drop = null;
-        } else if (content) {
-          createPayload(url, domPath, null, content, groupId);
+        } else if (fileControl.files.length > 0 || content) {
+          var image = fileControl.files.length > 0 ? fileControl.files[0] : null;
+          createPayload(url, domPath, image, content, groupId);
           drop.remove();
           drop = null;
         } else {
